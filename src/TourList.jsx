@@ -1,32 +1,20 @@
 import React, { useState, useEffect } from "react";
+import Navbar from "./components/Navbar/Navbar";
 import Loading from "./Loading";
-import TourList from "./TourList";
-import SearchBox from "../src/components/Searchbox/SearchBox";
+import Tour from './Tour';
 
 const url = "https://course-api.com/react-tours-project";
 
-function App() {
+const TourList = () => {
+  
   const [loading, setLoading] = useState(true);
-  const [tours, setTours] = useState([]);
-  const [searchfield, setSearchfield] = useState("");
-
-  const onSearchChange = (event) => {
-    setSearchfield(event.target.value);
-    console.log(filteredTours);
-  };
-  const filteredTours = tours.filter((tour) => {
-    return tour.name.toLowerCase().includes(searchfield.toLowerCase());
-  });
-  useEffect(() => {
-    fetch("https://course-api.com/react-tours-project")
-      .then((response) => response.json())
-      .then((tours) => setTours(tours));
-  }, []);
+  const [tours, setTours] = useState([])
 
   const removeTour = (id) => {
     const newTours = tours.filter((tour) => tour.id !== id);
     setTours(newTours);
   };
+
   const fetchTours = async () => {
     setLoading(true);
     try {
@@ -34,13 +22,13 @@ function App() {
       const tours = await response.json();
       setLoading(false);
       setTours(tours);
-    } catch (error) {
+      } catch (error) {
       setLoading(false);
       console.log(error);
     }
   };
   useEffect(() => {
-    fetchTours();
+    fetchTours("https://course-api.com/react-tours-project");
   }, []);
   if (loading) {
     return (
@@ -53,22 +41,39 @@ function App() {
     return (
       <main>
         <div className="title">
-          <h2>No Item</h2>
+          <h2>no tours left</h2>
           <button className="btn" onClick={() => fetchTours()}>
-            Refresh
+            refresh
           </button>
         </div>
       </main>
     );
   }
-
   return (
-    <main>
-      <h1 className="title">New and Popular</h1>
-      <SearchBox searchChange={onSearchChange} />
-      <TourList tours={filteredTours} removeTour={removeTour} />
-    </main>
-  );
-}
+    <section>
+      <Navbar/>
 
-export default App;
+      <div className="title">
+        <div className="underline"></div>
+      </div> 
+
+      <div>
+        {tours.map((tour) => {
+          return (
+          <Tour 
+          key={tour.id} 
+          id={tour.id}
+          name={tour.name}
+          {...tour} 
+          removeTour={removeTour} 
+          />
+          );
+
+        })}
+      </div>
+      
+    </section>
+  );
+};
+
+export default TourList;
